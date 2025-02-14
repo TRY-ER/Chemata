@@ -1,0 +1,103 @@
+.App {
+  background: rgb(14,10,67);
+  background: radial-gradient(circle, rgba(14,10,67,1) 0%, rgba(2,2,50,1) 32%, rgba(0,0,0,1) 76%, rgba(0,0,0,1) 100%);
+  height: 100vh;
+  width: 100vw;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Styling for each dot */
+.dot {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #ffffff31;
+  pointer-events: none;
+  transition: left 0.1s, top 0.1s;
+}
+
+/* Glass input container */
+.glass-input {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  padding: 20px;
+  backdrop-filter: blur(10px);
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+  z-index: 10;
+}
+
+.glass-input textarea {
+  border: none;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  color: #fff;
+  width: 20vw;
+  max-height: 20vh;  /* Maximum height before scrolling */
+  overflow-y: auto;   /* Enable vertical scrolling */
+  resize: none;
+  line-height: 1.5;
+  /* Firefox scrollbar styling */
+  scrollbar-color: rgba(255, 255, 255, 0.4) rgba(255, 255, 255, 0.2);
+  scrollbar-width: thin;
+}
+
+/* Chrome, Edge, and Safari scrollbar styling */
+.glass-input textarea::-webkit-scrollbar {
+  width: 10px !important;
+}
+
+.glass-input textarea::-webkit-scrollbar-button {
+  -webkit-appearance: none !important;
+  display: none !important;
+}
+
+.glass-input textarea::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 10px !important;
+}
+
+.glass-input textarea::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.4) !important;
+  border-radius: 10px !important;
+}
+
+/* Styling for the Send button */
+.send-button {
+  border: none;
+  outline: none;
+  background: rgba(255, 255, 255, 0.3);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.send-button:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.info-button {
+  background: rgba(255, 255, 255, 0.3);
+  border: none;
+  outline: none;
+  border-radius: 50%;
+  padding: 10px;
+  cursor: grab;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  transition: background 0.3s;
+  z-index: 20;
+}
+
+.info-button:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
