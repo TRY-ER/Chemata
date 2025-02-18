@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { DraggableCore } from 'react-draggable';
+import Draggable from 'react-draggable';
 import './App.css';
+import ReactDOM from 'react-dom';
 
 function App() {
   const [dots, setDots] = useState([]);
@@ -110,6 +111,10 @@ function App() {
           </svg>
         </button>
       </div>
+      <Draggable>
+        <div className='test-draggable'>
+        </div>
+      </Draggable>
     </div>
   );
 }
