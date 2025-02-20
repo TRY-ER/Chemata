@@ -25,12 +25,6 @@ app.add_middleware(
 )
 
 # Include routers
-app.include_router(base.router, tags=["base"]) # Include the base router
-app.include_router(validator.router, prefix="/validate", tags=["validator"]) # Include the validator router
-app.include_router(visualize.router, prefix="/visualize", tags=["visualize"]) # Include the validator router
-app.include_router(informer.router, prefix="/inform", tags=["inform"]) # Include the validator router
-app.include_router(generator.router, prefix="/generate", tags=["generate"]) # Include the validator router
-app.include_router(discriminator.router, prefix="/discriminator", tags=["discriminate"]) # Include the validator router
 app.include_router(chat.router, prefix="/chat", tags=["chat"]) # Include the validator router
 
 if __name__ == "__main__":
