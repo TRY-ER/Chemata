@@ -6,6 +6,19 @@ from rdkit.Chem import Draw
 from rdkit.Chem import Descriptors
 from io import BytesIO
 import base64
+import chromadb
+from chromadb.config import Settings
+from sentence_transformers import SentenceTransformer
+import json
+from dataclasses import dataclass
+from typing import List, Dict, Any
+from urllib.parse import urlencode
+
+##### Testing Setup ##############
+CHROMADB_SMILES_DB_NAME = "smiles_data"
+CHROMADB_PSMILES_DB_NAME = "psmiles_data"
+CHROMADB_PERSISTENT_PATH = "../../dist/chroma_store"
+RCSB_URL = "https://search.rcsb.org/rcsbsearch/v2/query"
 
 #################################
 # UTILS FUNCTIONS
@@ -130,6 +143,93 @@ def get_pdb_image(pdb_id: str):
         image_base64 = base64.b64encode(image_value).decode("utf-8")
         return image_base64
 
+class ChromaSearcher():
+    def __init__(self,
+                 collection_name: str,
+                 persist_directory: str):
+        self.persist_directory = persist_directory
+        self.client = chromadb.PersistentClient(path=self.persist_directory)
+        self.collection = self.client.get_or_create_collection(
+            name=collection_name)
+        self.model = SentenceTransformer('kuelumbus/polyBERT')
+
+    def get_embedding(self, smiles: str):
+        return self.model.encode(smiles).tolist()
+
+    def query(self, query_val: str, top_k: int = 3):
+        embedding = self.get_embedding(query_val)
+        return self.collection.query(query_embeddings=[embedding],
+                                     n_results=top_k)
+
+def format_smiles_search_results(results):
+    formatted_results = []
+    # try:
+    smiles_key_str = "smiles" if "smiles" in results["metadatas"][0][0] else "SMILES" 
+    for metadata, distance in zip(results["metadatas"][0], results["distances"][0]):
+        mol = Chem.MolFromSmiles(metadata.get(smiles_key_str))
+        img = Draw.MolToImage(mol, size=(100, 100))
+        buffer = BytesIO()
+        img.save(buffer, format="PNG")
+        buffer.seek(0)
+        image_data= base64.b64encode(buffer.read()).decode("utf-8")
+        formatted_results.append({
+            "identifier": metadata.get(smiles_key_str),
+            "score": distance,
+            "image": image_data
+        })
+    return {"status": "success", "results": formatted_results} 
+
+def get_smiles_search(collection_name, payload):
+    searcher = ChromaSearcher(collection_name=collection_name, persist_directory=CHROMADB_PERSISTENT_PATH)
+    results = searcher.query(payload["data"], top_k=payload["k"])
+    return format_smiles_search_results(results)
+
+@dataclass
+class RCSBQuery:
+    entry_id: str
+    assembly_id: str = "1"
+    rows: int = 25
+    start: int = 0
+
+class RCSBSearcher:
+    def __init__(self):
+        self.base_url = RCSB_URL
+
+    def build_query(self, query: RCSBQuery) -> Dict[str, Any]:
+        return {
+            "query": {
+                "type": "terminal",
+                "service": "structure",
+                "parameters": {
+                    "operator": "strict_shape_match",
+                    "target_search_space": "assembly",
+                    "value": {
+                        "entry_id": query.entry_id,
+                        "assembly_id": query.assembly_id
+                    }
+                }
+            },
+            "return_type": "entry",
+            "request_options": {
+                "paginate": {
+                    "start": query.start,
+                    "rows": query.rows
+                },
+                "results_content_type": ["experimental"],
+                "sort": [{"sort_by": "score", "direction": "desc"}],
+                "scoring_strategy": "combined"
+            }
+        }
+
+    def search(self, query: RCSBQuery) -> Dict[str, Any]:
+        query_dict = self.build_query(query)
+        params = {"json": json.dumps(query_dict)}
+        url = f"{self.base_url}?{urlencode(params)}"
+        
+        response = requests.get(url)
+        response.raise_for_status()
+        return response.json()
+
 #################################
 # MAIN TOOLS
 
@@ -210,6 +310,49 @@ def get_polymer_details(psmiles: str) -> dict:
     image = base64.b64encode(buffer.read()).decode("utf-8")
     return {"type": "psmiles", "info": info, "image": image}
 
+def get_similar_smiles(smiles: str, num_candidates: int) -> dict:
+    """
+    Get similar molecules from the chemical space using SMILES string
+    :param smiles: SMILES string
+    :param num_candidates: Number of candidates to retrieve
+    :return: dict containing details about the similar molecules
+    """
+    # collection_name = CHROMADB_SMILES_DB_NAME 
+    collection_name = CHROMADB_SMILES_DB_NAME 
+    payload = {
+        "data": smiles,
+        "k": num_candidates
+    } 
+    return get_smiles_search(collection_name, payload)
+
+def get_similar_psmiles(psmiles: str, num_candidates: int) -> dict:
+    """
+    Get similar polymers from the chemical space using PMILES string
+    :param psmiles: PSMILES string
+    :param num_candidates: Number of candidates to retrieve
+    :return: dict containing details about the similar molecules
+    """
+    # collection_name = CHROMADB_PSMILES_DB_NAME 
+    collection_name = CHROMADB_PSMILES_DB_NAME 
+    payload = {
+        "data": psmiles,
+        "k": num_candidates
+    }
+    return get_smiles_search(collection_name, payload)
+
+def get_similar_proteins(pdb_id: str, num_candidates: int) -> dict:
+    query = RCSBQuery(entry_id=pdb_id, rows=num_candidates)
+    searcher = RCSBSearcher()
+    results = searcher.search(query)
+    returnable = [] 
+    for r in results["result_set"]:
+        image_data = get_pdb_image(r["identifier"])
+        returnable.append({
+            "identifier": r["identifier"],
+            "score": r["score"],
+            "image": image_data
+        })
+    return returnable 
 
 if __name__ == "__main__":
     # Test the functions
@@ -217,6 +360,17 @@ if __name__ == "__main__":
     pdb_id = "1BNA"
     psmiles = "[*]CC[*]"
 
-    print("smiles details >>", get_smiles_details(smiles))
-    print("protein details >>", get_protein_details(pdb_id))
-    print("polymer details >>", get_polymer_details(psmiles)) 
+    # print("smiles details >>", get_smiles_details(smiles))
+    # print("protein details >>", get_protein_details(pdb_id))
+    # print("polymer details >>", get_polymer_details(psmiles)) 
+
+    # ret_smiles = get_similar_smiles(smiles, 5)
+    # print("recieved smiles >>", ret_smiles)
+
+    # ret_psmiles = get_similar_psmiles(psmiles, 5)
+    # print("recieved psmiles >>", ret_psmiles)
+
+    # ret_proteins = get_similar_proteins(pdb_id, 5)
+    # print("recieved proteins >>", ret_proteins)
+    
+
