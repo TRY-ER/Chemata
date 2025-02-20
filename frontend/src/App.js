@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import Draggable from 'react-draggable';
 import './App.css';
 import ReactDOM from 'react-dom';
+import DraggableInfoButton from './components/DraggableContainer/DragContain';
+import DragVisualizer from './components/DraggableContainer/DraggableVisualizer/DragViz';
 
 function App() {
   const [dots, setDots] = useState([]);
@@ -111,10 +113,13 @@ function App() {
           </svg>
         </button>
       </div>
-      <Draggable>
+      {/* <Draggable>
         <div className='test-draggable'>
         </div>
-      </Draggable>
+      </Draggable> */}
+      <DraggableInfoButton Visible={<DragVisualizer style={{top: "25px", right: "25px"}}/>} Content={<h1>Some Content</h1>}/>
+      <DraggableInfoButton Visible={<DragVisualizer style={{top: "65px", right: "25px"}}/>} Content={<h1>Some Other Content</h1>}/>
+      <DraggableInfoButton Visible={<DragVisualizer style={{top: "105px", right: "25px"}}/>} Content={<h1>Something Else Content</h1>}/>
     </div>
   );
 }

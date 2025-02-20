@@ -1,0 +1,24 @@
+.info-button {
+  background: rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  border: none;
+  outline: none;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: grab;
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  transition: background 0.3s;
+  z-index: 20;
+  color: #fff;
+  font-size: 24px;
+
+}
+
+.info-button:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
