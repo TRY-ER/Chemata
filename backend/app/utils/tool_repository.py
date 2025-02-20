@@ -13,6 +13,8 @@ import json
 from dataclasses import dataclass
 from typing import List, Dict, Any
 from urllib.parse import urlencode
+from generators.BRICSGenerator import BRICSGenerator
+from generators.LSTMGenerator import RNNPolymerGenerator
 
 ##### Testing Setup ##############
 CHROMADB_SMILES_DB_NAME = "smiles_data"
@@ -341,6 +343,12 @@ def get_similar_psmiles(psmiles: str, num_candidates: int) -> dict:
     return get_smiles_search(collection_name, payload)
 
 def get_similar_proteins(pdb_id: str, num_candidates: int) -> dict:
+    """
+    Get similar proteins from the chemical space using PDB ID
+    :param pdb_id: PDB ID
+    :param num_candidates: Number of candidates to retrieve
+    :return: dict containing details about the similar proteins with their images
+    """
     query = RCSBQuery(entry_id=pdb_id, rows=num_candidates)
     searcher = RCSBSearcher()
     results = searcher.search(query)
@@ -353,6 +361,36 @@ def get_similar_proteins(pdb_id: str, num_candidates: int) -> dict:
             "image": image_data
         })
     return returnable 
+
+def brics_generate_smiles(smiles_list: list) -> list:
+    """
+    Generate new molecules using BRICS decomposition and reconstruction
+    :param smiles_list: List of SMILES strings
+    :return: List of generated SMILES strings
+    """
+    generator = BRICSGenerator()
+    return generator.generate(smiles_list)
+
+def brics_generate_polymer(psmiles_list: list) -> list:
+    """
+    Generate new polymers using BRICS decomposition and reconstruction
+    :param psmiles_list: List of PSMILES strings
+    :return: List of generated PSMILES strings
+    """
+    generator = BRICSGenerator()
+    return generator.generate(psmiles_list, is_polymer=True)
+
+def lstm_generate_psmiles(num_generations: int) -> list:
+    generator = RNNPolymerGenerator(input_type="psmiles")
+    generator.load_model_from_ckpt("./generators/model_path/PSMILES_LSTM_1M_5_epochs.pth")
+    candidates = generator.generate(number_of_seq=num_generations)
+    return candidates
+
+def lstm_generate_wdg(num_generations: int) -> list:
+    generator = RNNPolymerGenerator(input_type="wdg")
+    generator.load_model_from_ckpt("./generators/model_path/WDGraph_LSTM_42K_50_epochs.pth")
+    candidates = generator.generate(number_of_seq=num_generations)
+    return candidates
 
 if __name__ == "__main__":
     # Test the functions
@@ -372,5 +410,26 @@ if __name__ == "__main__":
 
     # ret_proteins = get_similar_proteins(pdb_id, 5)
     # print("recieved proteins >>", ret_proteins)
-    
 
+    # smiles_list = [ "CC(=O)OC1=CC=CC=C1C(=O)O",
+    #     "CC(=O)NC1=CC=C(O)C=C1",
+    #     "CN1C=NC2=C1C(=O)N(C(=O)N2C)C",
+    #     "CC(C)CC1=CC=C(C=C1)C(C)C(=O)O",
+    #     "C(C1C(C(C(C(O1)O)O)O)O)O"]
+
+    # print("generated smiles >>", brics_generate_smiles(smiles_list))
+
+    # psmiles_list = [
+    #     "O=C([*])CCCCOC(=O)C(CC1OC([*])C(O)C(O)C1O)N[*]",
+    #     "O=C([*])CCCCOC(=O)C(Cc1c[nH]cn1)N[*]",
+    #     "O=C([*])CCCCOC(=O)C(CC1OC([*])C(O)C(O)C1CO)N[*]",
+    #     "O=C([*])CCCCOC(=O)C(CC1OC([*])C(O)C(O)C1C[*])N[*]",
+    #     "O=C([*])CCCCOC(=O)C(CC1OC([*])C(O)C(O)C1NCO[*])N[*]",
+    #     "O=C([*])CCCCOC(=O)C(CC1OC([*])C(O)C(O)C1c1c[nH]cn1)N[*]",
+    #     "O=C([*])CCCCOC(=O)C(CC1OC([*])C(O)C(O)C1O[*])N[*]", 
+    # ]
+
+    # print("generated psmiles >>", brics_generate_polymer(psmiles_list))
+
+    # print('lstm generation for 10 num >>', lstm_generate_psmiles(10))
+    print('lstm generation for 10 num >>', lstm_generate_wdg(10))
