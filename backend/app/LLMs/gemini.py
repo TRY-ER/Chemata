@@ -76,15 +76,18 @@ class GeminiLLMAgent():
         self.tool_map = tool_map
 
     def call_tool(self, tool_identifier, tool_map, params):
-        try:
-            # map the dictionary that contains the "map" keyword value equal to the tool identifier give me that dict
-            tool_object = [
-                tool for tool in tool_map if tool["map"] == tool_identifier][0]
-            tool_return = tool_object["callable"](**params)
-            tool_details = {k: v for k, v in tool_object.items() if k in ["name", "description"]}
-            tool_response = {"result": tool_return, "details": tool_details}
-        except (Exception) as e:
-            tool_response = {"error": str(e)}
+        # try:
+        # map the dictionary that contains the "map" keyword value equal to the tool identifier give me that dict
+        # print("tool map >>", tool_map)
+        print("tool identifier>>", tool_identifier)
+        tool_object = [
+            tool for tool in tool_map if tool["map"] == tool_identifier][0]
+        print("tool object >>", tool_object)
+        tool_return = tool_object["callable"](**params)
+        tool_details = {k: v for k, v in tool_object.items() if k in ["name", "description"]}
+        tool_response = {"result": tool_return, "details": tool_details}
+        # except (Exception) as e:
+        #     tool_response = {"error": str(e)}
         return tool_response
 
     def respond(self, query, **kwargs):
@@ -248,6 +251,7 @@ class GeminiLLMAgent():
                             if "image" in item:
                                 item.pop("image", None)
 
+                print("function call part", function_call_part)
                 print("tool call response mod >>", function_response)
 
                 function_content += "<# Tool Response #>\n"

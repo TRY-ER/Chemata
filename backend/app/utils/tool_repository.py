@@ -16,10 +16,13 @@ from urllib.parse import urlencode
 from app.utils.generators.BRICSGenerator import BRICSGenerator
 from app.utils.generators.LSTMGenerator import RNNPolymerGenerator
 
+# from generators.BRICSGenerator import BRICSGenerator
+# from generators.LSTMGenerator import RNNPolymerGenerator
+
 ##### Testing Setup ##############
 CHROMADB_SMILES_DB_NAME = "smiles_data"
 CHROMADB_PSMILES_DB_NAME = "psmiles_data"
-CHROMADB_PERSISTENT_PATH = "../../dist/chroma_store"
+CHROMADB_PERSISTENT_PATH = "./dist/chroma_store"
 RCSB_URL = "https://search.rcsb.org/rcsbsearch/v2/query"
 
 #################################
@@ -185,6 +188,7 @@ class ChromaSearcher():
 def format_smiles_search_results(results):
     formatted_results = []
     # try:
+    print("result recieved >>", results)
     smiles_key_str = "smiles" if "smiles" in results["metadatas"][0][0] else "SMILES"
     for metadata, distance in zip(results["metadatas"][0], results["distances"][0]):
         mol = Chem.MolFromSmiles(metadata.get(smiles_key_str))
@@ -365,8 +369,10 @@ def get_similar_smiles(smiles: str, num_candidates: int) -> dict:
     of the PSMILES, Monomer Molcular Weight, Number of rings in the Monomer, and the corresponding open bond
     indexes to indicate wher the potential bonds can be formed to connect with the next monomer.
 
+    If there is exact number of generaion is not provided consider it 3
+
     :param smiles: SMILES string
-    :param num_candidates: Number of candidates to retrieve
+    :param num_candidates: Number of candidates to retrieve (default 3)
     :return: dict containing details about the similar molecules
     """
     # collection_name = CHROMADB_SMILES_DB_NAME
@@ -387,8 +393,10 @@ def get_similar_psmiles(psmiles: str, num_candidates: int) -> dict:
     the operation and returns the json containing image of the polymers with it's PSMILES and 
     the similarity distance from the queried PSMILES.
 
+    If there is exact number of generaion is not provided consider it 3
+
     :param psmiles: PSMILES string
-    :param num_candidates: Number of candidates to retrieve
+    :param num_candidates: Number of candidates to retrieve (default 3)
     :return: dict containing details about the similar molecules
     """
     # collection_name = CHROMADB_PSMILES_DB_NAME
@@ -408,8 +416,10 @@ def get_similar_proteins(pdb_id: str, num_candidates: int) -> dict:
     This tool takes the PDB ID string with a the number of candidates to retrieve and does
     the operation and returns a JSON containing list of PDB Ids and corresponding similarity score. 
 
+    If there is exact number of generaion is not provided consider it 3
+
     :param pdb_id: PDB ID
-    :param num_candidates: Number of candidates to retrieve
+    :param num_candidates: Number of candidates to retrieve (default 3)
     :return: dict containing details about the similar proteins with their images
     """
     query = RCSBQuery(entry_id=pdb_id, rows=num_candidates)
@@ -463,7 +473,9 @@ def lstm_generate_psmiles(num_generations: int) -> list:
     to get the desired number of candidates. The input is a list of PSMILES strings. It might return errors sometimes, if the input is not in the correct format.
     The output will be a set of molecules that are generated based on the input.
 
-    :param num_generations: Number of polymer sequences to generate
+    if exact number of generations is not provided consider it 10
+
+    :param num_generations: Number of polymer sequences to generate (default 10)
     :return: List of generated PSMILES strings
     """
     generator = RNNPolymerGenerator(input_type="psmiles")
@@ -481,7 +493,10 @@ def lstm_generate_wdg(num_generations: int) -> list:
     to get the desired number of candidates. The input is a list of weighted directed graph strings. It might return errors sometimes, if the input is not in the correct format. 
     The output will be a set of molecules that are generated based on the input.
 
-    :param num_generations: Number of polymer sequences to generate
+
+    if exact number of generations is not provided consider it 10
+
+    :param num_generations: Number of polymer sequences to generate (defaule 10)
     :return: List of generated PSMILES strings
     """
     generator = RNNPolymerGenerator(input_type="wdg")
@@ -499,7 +514,7 @@ master_tools = [get_smiles_details, get_protein_details,
 
 if __name__ == "__main__":
     # Test the functions
-    smiles = "CCO"
+    smiles = "CC(=O)"
     pdb_id = "1BNA"
     psmiles = "[*]CC[*]"
 

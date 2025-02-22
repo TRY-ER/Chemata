@@ -1,0 +1,57 @@
+/* Glassy tool section that reuses the singular-section style */
+.tool-section {
+    background: rgba(244, 255, 95, 0.15);
+    backdrop-filter: blur(8px);
+    padding: 12px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    border-left: 4px solid rgba(244, 255, 95, 0.8);
+    border-radius: 4px;
+  }
+  
+  /* Tool header with icon, name and toggle */
+  .tool-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+  
+  .tool-icon {
+    color: #fff;
+    font-size: 20px;
+    margin-right: 8px;
+  }
+  
+  .tool-name {
+    flex-grow: 1;
+    font-size: 16px;
+    font-weight: bold;
+    color: #fff;
+  }
+  
+  .toggle-button {
+    background: rgba(255, 255, 255, 0.171);
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .toggle-button:hover {
+    background: rgba(255, 255, 255, 0.219);
+  }
+  
+  /* Collapsible description */
+  .tool-description {
+    margin-top: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    color: #fff;
+    font-size: 14px;
+    line-height: 1.4;
+    word-break: break-word; /* Break long words */
+    overflow-wrap: break-word; /* For longer words that overflow */
+  }

@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 import DraggableInfoButton from './components/DraggableContainer/DragContain';
 import DragVisualizer from './components/DraggableContainer/DraggableVisualizer/DragViz';
 import ChatParser from './components/Parsers/ChatParser';
+import ToolParser from './components/Parsers/ToolParser/ToolParser';
 
 function App() {
   const [dots, setDots] = useState([]);
@@ -165,6 +166,7 @@ function App() {
       <div className="query-section">
         <p>{userQuery}</p>
       </div>
+      <ToolParser response={response} />
       <div className="response-section">
         {<ChatParser response={response} /> || 'Loading...'}
       </div>
