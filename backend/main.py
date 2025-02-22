@@ -3,12 +3,6 @@ set_env_vars(".env")
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import (
-    base,
-    validator,
-    visualize,
-    informer,
-    generator,
-    discriminator,
     chat
 )
 import uvicorn

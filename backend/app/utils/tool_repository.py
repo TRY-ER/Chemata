@@ -13,8 +13,8 @@ import json
 from dataclasses import dataclass
 from typing import List, Dict, Any
 from urllib.parse import urlencode
-from utils.generators.BRICSGenerator import BRICSGenerator
-from utils.generators.LSTMGenerator import RNNPolymerGenerator
+from app.utils.generators.BRICSGenerator import BRICSGenerator
+from app.utils.generators.LSTMGenerator import RNNPolymerGenerator
 
 ##### Testing Setup ##############
 CHROMADB_SMILES_DB_NAME = "smiles_data"
