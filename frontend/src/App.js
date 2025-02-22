@@ -4,6 +4,7 @@ import './App.css';
 import ReactDOM from 'react-dom';
 import DraggableInfoButton from './components/DraggableContainer/DragContain';
 import DragVisualizer from './components/DraggableContainer/DraggableVisualizer/DragViz';
+import ChatParser from './components/Parsers/ChatParser';
 
 function App() {
   const [dots, setDots] = useState([]);
@@ -57,7 +58,7 @@ function App() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ id: newResponseId, query: query }), // Send ID with query
+        body: JSON.stringify({ id: newResponseId, query: query, config: {} }), // Send ID with query
       });
 
       if (!response.ok) throw new Error('Network response was not ok');
@@ -66,10 +67,19 @@ function App() {
       eventSourceRef.current = new EventSource(`http://localhost:8000/chat/stream/${newResponseId}`);
 
       eventSourceRef.current.onmessage = (event) => {
+        if(event.data === "<|end|>"){
+          setResponses(prev => prev.map(resp =>
+            resp.id === newResponseId
+              ? { ...resp, complete: true }
+              : resp
+          ));
+          eventSourceRef.current && eventSourceRef.current.close();
+          return;
+        }
         const data = JSON.parse(event.data);
         setResponses(prev => prev.map(resp =>
           resp.id === newResponseId
-            ? { ...resp, response: resp.response + data.chunk }
+            ? { ...resp, response: resp.response + data}
             : resp
         ));
       };
@@ -150,24 +160,13 @@ function App() {
     }
   };
 
-  // const queryResponseSection = <>
-  //     <div className = "singular-section">
-  //       <div className = "query-section">
-  //         <p>Some query</p>
-  //       </div>
-  //       <div className = "response-section">
-  //         <p>Some response</p>
-  //       </div>
-  //     </div>
-  //     </>
-
   const queryResponseSection = responses.map(({ id, query: userQuery, response }) => (
     <div key={id} className="singular-section">
       <div className="query-section">
         <p>{userQuery}</p>
       </div>
       <div className="response-section">
-        <p>{response || 'Loading...'}</p>
+        {<ChatParser response={response} /> || 'Loading...'}
       </div>
     </div>
   ));

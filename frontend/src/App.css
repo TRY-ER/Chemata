@@ -177,6 +177,8 @@
   border-left: 4px solid rgba(0, 123, 255, 0.8);
   padding: 8px;
   border-radius: 4px;
+  word-break: break-word; /* Break long words */
+  overflow-wrap: break-word; /* For longer words that overflow */
 }
 
 /* Styling for the bot's response */
@@ -185,6 +187,8 @@
   border-left: 4px solid rgba(40, 167, 69, 0.8);
   padding: 8px;
   border-radius: 4px;
+  word-break: break-word; /* Break long words */
+  overflow-wrap: break-word; /* For longer words that overflow */
 }
 
 /* Text styling for both sections */
