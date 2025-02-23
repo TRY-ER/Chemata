@@ -24,7 +24,7 @@ if __name__ == "__main__":
                            tool_map = tool_mapper,
                            persist = False)
     response = agent.stream_respond(
-        "What are different properties of molecule CC(=O)?",
+        "get me some details for 1MO8",
         instruction_dict = instructions
         )
     # response = agent.stream_respond("What is the color of sky ?")

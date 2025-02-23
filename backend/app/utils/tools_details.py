@@ -24,6 +24,7 @@ tool_mapper = [
         "input_types": [str],
         "input_parameters": ["smiles"],
         "input_descriptions": ["SMILES string of the molecule"],
+        "default_inputs": [None],
         "output_types": [dict],
         "callable": get_smiles_details 
     },
@@ -37,6 +38,7 @@ tool_mapper = [
         "input_types": [str],
         "input_parameters": ["pdb_id"],
         "input_descriptions": ["PDB ID of the protein"],
+        "default_inputs": [None],
         "output_types": [dict],
         "callable": get_protein_details 
     },
@@ -51,6 +53,7 @@ tool_mapper = [
         "input_types": [str],
         "input_parameters": ["psmiles"],
         "input_descriptions": ["PSMILES of the polymer"],
+        "default_inputs": [None],
         "output_types": [dict],
         "callable": get_polymer_details 
     },
@@ -67,6 +70,7 @@ tool_mapper = [
         "input_types": [str, int],
         "input_parameters": ["smiles", "num_candidates"],
         "input_descriptions": ["SMILES string of the molecule", "Number of candidates to retrieve"],
+        "default_inputs": [None, 5],
         "output_types": [dict],
         "callable": get_similar_smiles 
     },
@@ -82,6 +86,7 @@ tool_mapper = [
         "input_types": [str, int],
         "input_parameters": ["psmiles", "num_candidates"],
         "input_descriptions": ["PSMILES string of the polymer", "Number of candidates to retrieve"],
+        "default_inputs": [None, 5],
         "output_types": [dict],
         "callable": get_similar_psmiles 
     },
@@ -96,6 +101,7 @@ tool_mapper = [
         "input_types": [str, int],
         "input_parameters": ["pdb_id", "num_candidates"],
         "input_descriptions": ["PDB ID of the protein", "Number of candidates to retrieve"],
+        "default_inputs": [None, 5],
         "output_types": [dict],
         "callable": get_similar_proteins 
     },
@@ -109,6 +115,7 @@ tool_mapper = [
         "input_types": [str],
         "input_parameters": ["smiles_list"],
         "input_descriptions": ["List of SMILES strings"],
+        "default_inputs": [None],
         "output_types": [dict],
         "callable": brics_generate_smiles 
     },
@@ -123,6 +130,7 @@ tool_mapper = [
         "input_types": [str],
         "input_parameters": ["psmiles_list"],
         "input_descriptions": ["List of PSMILES strings"],
+        "default_inputs": [None],
         "output_types": [dict],
         "callable": brics_generate_polymer 
     },
@@ -137,6 +145,7 @@ tool_mapper = [
         "input_types": [int],
         "input_parameters": ["num_candidates"],
         "input_descriptions": ["Number of candidates to generate"],
+        "default_inputs": [5],
         "output_types": [dict],
         "callable": lstm_generate_psmiles 
     },
@@ -151,6 +160,7 @@ tool_mapper = [
         "input_types": [int],
         "input_parameters": ["num_candidates"],
         "input_descriptions": ["Number of candidates to generate"],
+        "default_inputs": [5],
         "output_types": [dict],
         "callable": lstm_generate_wdg 
     }

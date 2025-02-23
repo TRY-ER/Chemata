@@ -1,3 +1,4 @@
 import os
 
 GOOGLE_CLOUD_PROJECT_API_KEY = os.environ.get("GOOGLE_CLOUD_PROJECT_API_KEY")
+OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")

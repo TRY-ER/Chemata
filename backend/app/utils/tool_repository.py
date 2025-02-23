@@ -13,8 +13,11 @@ import json
 from dataclasses import dataclass
 from typing import List, Dict, Any
 from urllib.parse import urlencode
-from app.utils.generators.BRICSGenerator import BRICSGenerator
-from app.utils.generators.LSTMGenerator import RNNPolymerGenerator
+# from app.utils.generators.BRICSGenerator import BRICSGenerator
+# from app.utils.generators.LSTMGenerator import RNNPolymerGenerator
+
+from utils.generators.BRICSGenerator import BRICSGenerator
+from utils.generators.LSTMGenerator import RNNPolymerGenerator
 
 # from generators.BRICSGenerator import BRICSGenerator
 # from generators.LSTMGenerator import RNNPolymerGenerator
@@ -22,7 +25,7 @@ from app.utils.generators.LSTMGenerator import RNNPolymerGenerator
 ##### Testing Setup ##############
 CHROMADB_SMILES_DB_NAME = "smiles_data"
 CHROMADB_PSMILES_DB_NAME = "psmiles_data"
-CHROMADB_PERSISTENT_PATH = "./dist/chroma_store"
+CHROMADB_PERSISTENT_PATH = "../dist/chroma_store"
 RCSB_URL = "https://search.rcsb.org/rcsbsearch/v2/query"
 
 #################################
@@ -276,55 +279,60 @@ def get_smiles_details(smiles: str) -> dict:
     :param smiles: SMILES string
     :return: dict containing details about the molecule
     """
-    mol = Chem.MolFromSmiles(smiles)
-    if not mol:
-        return {"error": "Invalid SMILES"}
+    try:
+        mol = Chem.MolFromSmiles(smiles)
+        if not mol:
+            return {"error": "Invalid SMILES"}
 
-    # Basic properties about the molecule:
-    # MolecularFormula  - chemical formula for the molecule
-    # MolecularWeight   - approximate weight in daltons
-    # NumHeavyAtoms     - count of non-hydrogen atoms
-    # NumHBD            - hydrogen bond donor count
-    # NumHBA            - hydrogen bond acceptor count
-    # NumRotatableBonds - number of freely rotating bonds
-    # TPSA              - topological polar surface area
-    # NumRings          - number of ring structures
-    info = {
-        "Molecular Formula": Chem.rdMolDescriptors.CalcMolFormula(mol),
-        "Molecular Weight": round(float(Descriptors.MolWt(mol)), 3),
-        "Heavy Atoms Count": Descriptors.HeavyAtomCount(mol),
-        "H Bond Donor Count": Descriptors.NumHDonors(mol),
-        "H Bond Acceptor Count": Descriptors.NumHAcceptors(mol),
-        "Rotatable Bonds Count": Descriptors.NumRotatableBonds(mol),
-        "TPSA": Descriptors.TPSA(mol),
-        "Number of Rings": Descriptors.RingCount(mol),
-    }
-    if not mol:
-        return None
-    img = Draw.MolToImage(mol, size=(600, 600))
-    buffer = BytesIO()
-    img.save(buffer, format="PNG")
-    buffer.seek(0)
-    image = base64.b64encode(buffer.read()).decode("utf-8")
-    return {"type": "smiles", "info": info, "image": image}
+        # Basic properties about the molecule:
+        # MolecularFormula  - chemical formula for the molecule
+        # MolecularWeight   - approximate weight in daltons
+        # NumHeavyAtoms     - count of non-hydrogen atoms
+        # NumHBD            - hydrogen bond donor count
+        # NumHBA            - hydrogen bond acceptor count
+        # NumRotatableBonds - number of freely rotating bonds
+        # TPSA              - topological polar surface area
+        # NumRings          - number of ring structures
+        info = {
+            "Molecular Formula": Chem.rdMolDescriptors.CalcMolFormula(mol),
+            "Molecular Weight": round(float(Descriptors.MolWt(mol)), 3),
+            "Heavy Atoms Count": Descriptors.HeavyAtomCount(mol),
+            "H Bond Donor Count": Descriptors.NumHDonors(mol),
+            "H Bond Acceptor Count": Descriptors.NumHAcceptors(mol),
+            "Rotatable Bonds Count": Descriptors.NumRotatableBonds(mol),
+            "TPSA": Descriptors.TPSA(mol),
+            "Number of Rings": Descriptors.RingCount(mol),
+        }
+        if not mol:
+            return None
+        img = Draw.MolToImage(mol, size=(600, 600))
+        buffer = BytesIO()
+        img.save(buffer, format="PNG")
+        buffer.seek(0)
+        image = base64.b64encode(buffer.read()).decode("utf-8")
+        return {"type": "smiles", "info": info, "image": image}
+    except Exception as e:
+        return {"error": str(e)}
 
 
 def get_protein_details(pdb_id: str) -> dict:
     """
     Get details about a protein from its PDB ID
 
-    The molecule explorer tool takes SMILES string of the molecule and provides 
-    details in json with the 2D image of the chemical representation of the molecule and informations
-    it's properties. The information panel shows different chemical details as Molecular Formula,
-    Molecular Weight, Heavy Atoms Count, H Bond Doner Count, H Bond Acceptor Count, Rotatale Bonds Count,
-    Topological Polar Surface Area (TPSA), and Number of rings.
+    The protein explorer tool takes the Protein Data Bank ID (PDB ID) and returns it's several details consisting Pdb Id, Title,Authors,Journal, Year, Volume, Pages, DOI, Pubmed Id,
+    Experiment Method, Molecular Weight (kDa), Deposited Model Count, Polymer entity count, Polymer monomer count,
+    Structural Features, Release Date, Resolution. 
+    Always look if the pdbid is valid or not. 
     
     :param pdb_id: PDB ID
     :return: dict containing details about the protein
     """
-    pdb_info = get_pdb_info(pdb_id)
-    pdb_image = get_pdb_image(pdb_id)
-    return {"type": "protein", "info": pdb_info, "image": pdb_image}
+    try:
+        pdb_info = get_pdb_info(pdb_id)
+        pdb_image = get_pdb_image(pdb_id)
+        return {"type": "protein", "info": pdb_info, "image": pdb_image}
+    except Exception as e:
+        return {"error": str(e)}
 
 
 def get_polymer_details(psmiles: str) -> dict:
@@ -338,30 +346,33 @@ def get_polymer_details(psmiles: str) -> dict:
     :param psmiles: PSMILES string
     :return: dict containing details about the polymer
     """
+    try:
+        mol = Chem.MolFromSmiles(psmiles)
 
-    mol = Chem.MolFromSmiles(psmiles)
+        # get indexes of [*] content in the PSMILES string
+        wildcard_indices = [atom.GetIdx()
+                            for atom in mol.GetAtoms() if atom.GetSymbol() == '*']
+        wildcard_indices = ",".join([str(index) for index in wildcard_indices])
 
-    # get indexes of [*] content in the PSMILES string
-    wildcard_indices = [atom.GetIdx()
-                        for atom in mol.GetAtoms() if atom.GetSymbol() == '*']
-    wildcard_indices = ",".join([str(index) for index in wildcard_indices])
+        info = {
+            "Molecular Formula": Chem.rdMolDescriptors.CalcMolFormula(mol),
+            "Monomer Molecular Weight": round(float(Descriptors.MolWt(mol)), 3),
+            "Number of Rings in Monomer": Descriptors.RingCount(mol),
+            "Open Bond Indexes": wildcard_indices
+        }
 
-    info = {
-        "Molecular Formula": Chem.rdMolDescriptors.CalcMolFormula(mol),
-        "Monomer Molecular Weight": round(float(Descriptors.MolWt(mol)), 3),
-        "Number of Rings in Monomer": Descriptors.RingCount(mol),
-        "Open Bond Indexes": wildcard_indices
-    }
-
-    img = Draw.MolToImage(mol, size=(600, 600))
-    buffer = BytesIO()
-    img.save(buffer, format="PNG")
-    buffer.seek(0)
-    image = base64.b64encode(buffer.read()).decode("utf-8")
-    return {"type": "psmiles", "info": info, "image": image}
+        img = Draw.MolToImage(mol, size=(600, 600))
+        buffer = BytesIO()
+        img.save(buffer, format="PNG")
+        buffer.seek(0)
+        image = base64.b64encode(buffer.read()).decode("utf-8")
+        return {"type": "psmiles", "info": info, "image": image}
+    except Exception as e:
+        return {"error": str(e)}
+    
 
 
-def get_similar_smiles(smiles: str, num_candidates: int) -> dict:
+def get_similar_smiles(smiles: str) -> dict:
     """
     Get similar molecules from the chemical space using SMILES string
 
@@ -369,22 +380,19 @@ def get_similar_smiles(smiles: str, num_candidates: int) -> dict:
     of the PSMILES, Monomer Molcular Weight, Number of rings in the Monomer, and the corresponding open bond
     indexes to indicate wher the potential bonds can be formed to connect with the next monomer.
 
-    If there is exact number of generaion is not provided consider it 3
-
     :param smiles: SMILES string
-    :param num_candidates: Number of candidates to retrieve (default 3)
     :return: dict containing details about the similar molecules
     """
     # collection_name = CHROMADB_SMILES_DB_NAME
     collection_name = CHROMADB_SMILES_DB_NAME
     payload = {
         "data": smiles,
-        "k": num_candidates
+        "k": 5 
     }
     return get_smiles_search(collection_name, payload)
 
 
-def get_similar_psmiles(psmiles: str, num_candidates: int) -> dict:
+def get_similar_psmiles(psmiles: str) -> dict:
     """
     Get similar polymers from the chemical space using PMILES string
     
@@ -393,22 +401,18 @@ def get_similar_psmiles(psmiles: str, num_candidates: int) -> dict:
     the operation and returns the json containing image of the polymers with it's PSMILES and 
     the similarity distance from the queried PSMILES.
 
-    If there is exact number of generaion is not provided consider it 3
-
     :param psmiles: PSMILES string
-    :param num_candidates: Number of candidates to retrieve (default 3)
     :return: dict containing details about the similar molecules
     """
     # collection_name = CHROMADB_PSMILES_DB_NAME
     collection_name = CHROMADB_PSMILES_DB_NAME
     payload = {
         "data": psmiles,
-        "k": num_candidates
+        "k": 5 
     }
     return get_smiles_search(collection_name, payload)
 
-
-def get_similar_proteins(pdb_id: str, num_candidates: int) -> dict:
+def get_similar_proteins(pdb_id: str) -> dict:
     """
     Get similar proteins from the chemical space using PDB ID
 
@@ -416,13 +420,10 @@ def get_similar_proteins(pdb_id: str, num_candidates: int) -> dict:
     This tool takes the PDB ID string with a the number of candidates to retrieve and does
     the operation and returns a JSON containing list of PDB Ids and corresponding similarity score. 
 
-    If there is exact number of generaion is not provided consider it 3
-
     :param pdb_id: PDB ID
-    :param num_candidates: Number of candidates to retrieve (default 3)
     :return: dict containing details about the similar proteins with their images
     """
-    query = RCSBQuery(entry_id=pdb_id, rows=num_candidates)
+    query = RCSBQuery(entry_id=pdb_id, rows=5)
     searcher = RCSBSearcher()
     results = searcher.search(query)
     returnable = []
@@ -472,8 +473,6 @@ def lstm_generate_psmiles(num_generations: int) -> list:
     This tool generates molecules using the LSTM algorithm. The LSTM algorithm is a deep learning algorithm that generates molecules for required iterations
     to get the desired number of candidates. The input is a list of PSMILES strings. It might return errors sometimes, if the input is not in the correct format.
     The output will be a set of molecules that are generated based on the input.
-
-    if exact number of generations is not provided consider it 10
 
     :param num_generations: Number of polymer sequences to generate (default 10)
     :return: List of generated PSMILES strings
