@@ -1,6 +1,6 @@
-- Title : **Entangled**
+- Title : **Chemistry Assistant with Custom Tooling for Accurate Information Processing and Retrieval**
 - Team Members: [Debasish Mohanty](mailto:availdebasish@gmail.com)
 - [x] All team members agree to abide by the [Hackathon Rules](https://aaai.org/conference/aaai/aaai-25/hackathon/)
 - [x] This AAAI 2025 hackathon entry was created by the team during the period of the hackathon, February 17 – February 24, 2025
-- [ ] The entry includes a 2-minute maximum length demo video here: [Link](https://your-link.com)
+- [x] The entry includes a 2-minute maximum length demo video here: [Link](https://youtu.be/s2lRlRPsl5Y)
 - [x] The entry clearly identifies the selected theme in the README and the video.
