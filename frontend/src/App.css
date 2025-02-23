@@ -171,6 +171,10 @@
   background: rgba(255, 255, 255, 0.076);
 }
 
+.singular-section.active{
+  background: rgba(255, 255, 255, 0.076);
+}
+
 /* Styling for the user's query */
 .query-section {
   background: rgba(0, 123, 255, 0.2);
@@ -190,6 +194,37 @@
   word-break: break-word; /* Break long words */
   overflow-wrap: break-word; /* For longer words that overflow */
 }
+
+.response-section.running {
+  position: relative;
+  overflow: hidden;
+}
+
+.response-section.running::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 200%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  animation: running-line 2s infinite;
+}
+
+@keyframes running-line {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+
+
 
 /* Text styling for both sections */
 .singular-section p {

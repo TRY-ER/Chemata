@@ -2,7 +2,7 @@ import React from 'react';
 import ReactMarkdown from 'react-markdown';
 import "./ChatParser.css";
 
-const ChatParser = ({ response }) => {
+const ChatParser = ({ response, chatState }) => {
   if (!response) return null;
 
   const startMarker = "<# Chat Response Start#>";

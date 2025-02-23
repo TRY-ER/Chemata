@@ -7,6 +7,7 @@
     border-left: 4px solid rgba(244, 255, 95, 0.8);
     border-radius: 4px;
   }
+
   
   /* Tool header with icon, name and toggle */
   .tool-header {
@@ -44,6 +45,18 @@
   }
   
   /* Collapsible description */
+  /* .tool-description {
+    margin-top: 10px;
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    color: #fff;
+    font-size: 14px;
+    line-height: 1.4;
+    word-break: break-word;
+    overflow-wrap: break-word;
+  } */
+
   .tool-description {
     margin-top: 10px;
     padding: 8px;
@@ -52,6 +65,13 @@
     color: #fff;
     font-size: 14px;
     line-height: 1.4;
-    word-break: break-word; /* Break long words */
-    overflow-wrap: break-word; /* For longer words that overflow */
+    word-break: break-word;       /* Break long words */
+    overflow-wrap: break-word;    /* Ensure long strings break */
+    white-space: pre-wrap;        /* Wrap text preserving whitespace */
+    max-width: 100%;              /* Prevent overflow beyond container */
+  }
+
+  .tool-description pre{
+    white-space: pre-wrap;
+    word-wrap: break-word;
   }

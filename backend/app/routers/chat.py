@@ -18,7 +18,7 @@ router = APIRouter()
 queries = {}
 
 class Query(BaseModel):
-    id: int
+    id: str 
     query: str
     config: Dict[str, Any]
 

@@ -1,0 +1,17 @@
+.card-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-content p {
+    margin: 0;
+    padding: 0;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.card-iden{
+    font-size: 16px !important;
+    margin: 5px 0 !important;
+    font-weight: 600;
+}
