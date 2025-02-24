@@ -24,3 +24,13 @@
 .value-gap{
     margin-left: 10px;
 }
+
+.card-header{
+  word-break: break-word; /* Break long words */
+  overflow-wrap: break-word; /* For longer words that overflow */
+}
+
+.card-content{
+  word-break: break-word; /* Break long words */
+  overflow-wrap: break-word; /* For longer words that overflow */
+}
