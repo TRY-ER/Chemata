@@ -244,13 +244,14 @@ class GeminiLLMAgent():
                 if "result" in function_response:
                     function_content += json.dumps(function_response)
                     function_content += "\n"
-                    if "image" in function_response["result"] and type(function_response["result"]) is dict:
-                        function_response["result"].pop("image", None)
-                    if type(function_response["result"]) is dict:
-                        if "results" in function_response["result"] and type(function_response["result"]["results"]) is list:
-                            for item in function_response["result"]["results"]:
-                                if "image" in item:
-                                    item.pop("image", None)
+                    if "status" in function_response["result"]:
+                        if "image" in function_response["result"]["results"] and type(function_response["result"]["results"]) is dict:
+                            function_response["result"]["results"].pop("image", None)
+                        if type(function_response["result"]) is dict:
+                            if "results" in function_response["result"] and type(function_response["result"]["results"]) is list:
+                                for item in function_response["result"]["results"]:
+                                    if "image" in item:
+                                        item.pop("image", None)
 
                 print("function call part", function_call_part)
                 print("tool call response mod >>", function_response)

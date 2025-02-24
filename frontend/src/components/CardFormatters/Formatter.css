@@ -15,3 +15,12 @@
     margin: 5px 0 !important;
     font-weight: 600;
 }
+
+.key-highlight{
+    color: #f0c674;
+    font-weight: 600;
+}
+
+.value-gap{
+    margin-left: 10px;
+}

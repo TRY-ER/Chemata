@@ -4,13 +4,14 @@ import Draggable from 'react-draggable';
 import './SpawnCards.css';
 import { v4 as uuidv4 } from 'uuid';
 import HeadingFormatter from '../CardFormatters/HeadingFormatter';
+import { motion, AnimatePresence } from 'framer-motion';
 import BodyFormatter from '../CardFormatters/BodyFormatter';
 
 // These minimal sizes are used for collision detection.
 const CARD_MIN_WIDTH = 350;
 const CARD_MIN_HEIGHT = 40;
 
-const SpawnCard = ({ card, updateCardPosition, content, cardType}) => {
+const SpawnCard = ({ card, updateCardPosition, content, cardType, index }) => {
   const [isCollapsed, setIsCollapsed] = useState(true);
 
   useEffect(() => {
@@ -23,12 +24,18 @@ const SpawnCard = ({ card, updateCardPosition, content, cardType}) => {
       position={{ x: card.x, y: card.y }}
       onStop={(e, data) => updateCardPosition(card.id, data.x, data.y)}
     >
-      <div className="spawn-card">
-        <HeadingFormatter content={content} cardType={cardType} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} /> 
+      <motion.div
+        className="spawn-card"
+        initial={{ opacity: 0, filter: 'blur(10px)' }}
+        animate={{ opacity: 1, filter: 'blur(0px)' }}
+        exit={{ opacity: 0, filter: 'blur(10px)' }}
+        transition={{ duration: 0.5, delay: index * 0.2 }}
+      >
+        <HeadingFormatter content={content} cardType={cardType} isCollapsed={isCollapsed} setIsCollapsed={setIsCollapsed} />
         {!isCollapsed && (
           <BodyFormatter content={content} cardType={cardType} />
         )}
-      </div>
+      </motion.div>
     </Draggable>
   );
 };
@@ -88,7 +95,7 @@ const SpawnCards = ({ existingElems, cardContents, cardType }) => {
 
     const pos = generateRandomPosition(CARD_MIN_WIDTH, CARD_MIN_HEIGHT, reservedRects, existingRects);
     if (pos) {
-      const newCard = { id: uuidv4(), ...pos, content: cardContent};
+      const newCard = { id: uuidv4(), ...pos, content: cardContent };
       setSpawnedCards(prev => [...prev, newCard]);
     } else {
       // console.log("No space available to spawn a new card.");
@@ -99,7 +106,7 @@ const SpawnCards = ({ existingElems, cardContents, cardType }) => {
   //   console.log("")
   // }, [currentActiveId])
 
-  useEffect(() =>{
+  useEffect(() => {
     console.log("cardContents: ", cardContents);
     setSpawnedCards([]);
     if (cardContents && cardContents.length > 0) {
@@ -121,9 +128,21 @@ const SpawnCards = ({ existingElems, cardContents, cardType }) => {
 
   return (
     <div className="spawn-cards-container">
-      {spawnedCards.map(card => (
-        <SpawnCard key={card.id} card={card} updateCardPosition={updateCardPosition} content={card.content} cardType={cardType} />
-      ))}
+      <AnimatePresence>
+        {spawnedCards.map((card, index) => (
+          <SpawnCard
+            key={card.id}
+            card={card}
+            updateCardPosition={updateCardPosition}
+            content={card.content}
+            cardType={cardType}
+            index={index}
+          />
+        ))}
+      </AnimatePresence>
+      {/* {spawnedCards.map((card, index) => (
+        <SpawnCard key={card.id} card={card} updateCardPosition={updateCardPosition} content={card.content} cardType={cardType} index={index} />
+      ))} */}
     </div>
   );
 };

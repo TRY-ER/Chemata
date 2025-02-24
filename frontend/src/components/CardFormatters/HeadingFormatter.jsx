@@ -7,11 +7,12 @@ const HeadingFormatter = ({ content, cardType, isCollapsed, setIsCollapsed }) =>
   const toggleCollapse = () => setIsCollapsed(prev => !prev);
   return (
     <div className="card-header" onClick={toggleCollapse}>
-          <span>{content.identifier}</span>
-          <button className="collapse-button">
-            {isCollapsed ? 'Expand' : 'Collapse'}
-          </button>
-        </div>
+      {content?.identifier && <span>{content.identifier}</span>}
+      {content?.id && <span>{content?.id}</span>}
+      <button className="collapse-button">
+        {isCollapsed ? 'Expand' : 'Collapse'}
+      </button>
+    </div>
   );
 }
 

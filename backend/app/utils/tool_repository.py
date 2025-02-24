@@ -310,7 +310,7 @@ def get_smiles_details(smiles: str) -> dict:
         img.save(buffer, format="PNG")
         buffer.seek(0)
         image = base64.b64encode(buffer.read()).decode("utf-8")
-        return {"type": "smiles", "info": info, "image": image}
+        return {"status": "success", "results": {"type": "smiles", "info": info, "image": image, "id": smiles}}
     except Exception as e:
         return {"error": str(e)}
 
@@ -323,14 +323,14 @@ def get_protein_details(pdb_id: str) -> dict:
     Experiment Method, Molecular Weight (kDa), Deposited Model Count, Polymer entity count, Polymer monomer count,
     Structural Features, Release Date, Resolution. 
     Always look if the pdbid is valid or not. 
-    
+
     :param pdb_id: PDB ID
     :return: dict containing details about the protein
     """
     try:
         pdb_info = get_pdb_info(pdb_id)
         pdb_image = get_pdb_image(pdb_id)
-        return {"type": "protein", "info": pdb_info, "image": pdb_image}
+        return {"status": "success", "results": {"type": "protein", "info": pdb_info, "image": pdb_image, "id": pdb_id}}
     except Exception as e:
         return {"error": str(e)}
 
@@ -366,10 +366,9 @@ def get_polymer_details(psmiles: str) -> dict:
         img.save(buffer, format="PNG")
         buffer.seek(0)
         image = base64.b64encode(buffer.read()).decode("utf-8")
-        return {"type": "psmiles", "info": info, "image": image}
+        return {"status" : "success", "results": {"type": "psmiles", "info": info, "image": image, "id": psmiles}}
     except Exception as e:
         return {"error": str(e)}
-    
 
 
 def get_similar_smiles(smiles: str) -> dict:
@@ -387,7 +386,7 @@ def get_similar_smiles(smiles: str) -> dict:
     collection_name = CHROMADB_SMILES_DB_NAME
     payload = {
         "data": smiles,
-        "k": 5 
+        "k": 5
     }
     return get_smiles_search(collection_name, payload)
 
@@ -395,7 +394,7 @@ def get_similar_smiles(smiles: str) -> dict:
 def get_similar_psmiles(psmiles: str) -> dict:
     """
     Get similar polymers from the chemical space using PMILES string
-    
+
     This tool uses PSMILES string to retrieve similar polymers from the polymer space.
     This tool takes the PSMILES string with a the number of candidates to retrieve and does
     the operation and returns the json containing image of the polymers with it's PSMILES and 
@@ -408,9 +407,10 @@ def get_similar_psmiles(psmiles: str) -> dict:
     collection_name = CHROMADB_PSMILES_DB_NAME
     payload = {
         "data": psmiles,
-        "k": 5 
+        "k": 5
     }
     return get_smiles_search(collection_name, payload)
+
 
 def get_similar_proteins(pdb_id: str) -> dict:
     """
@@ -434,7 +434,7 @@ def get_similar_proteins(pdb_id: str) -> dict:
             "score": r["score"],
             "image": image_data
         })
-    return returnable
+    return {"status": "success", "results": returnable}
 
 
 def brics_generate_smiles(smiles_list: list[str]) -> list:
@@ -479,7 +479,7 @@ def lstm_generate_psmiles(num_generations: int) -> list:
     """
     generator = RNNPolymerGenerator(input_type="psmiles")
     generator.load_model_from_ckpt(
-        "./generators/model_path/PSMILES_LSTM_1M_5_epochs.pth")
+        "./app/utils/generators/model_path/PSMILES_LSTM_1M_5_epochs.pth")
     candidates = generator.generate(number_of_seq=num_generations)
     return candidates
 
@@ -500,13 +500,13 @@ def lstm_generate_wdg(num_generations: int) -> list:
     """
     generator = RNNPolymerGenerator(input_type="wdg")
     generator.load_model_from_ckpt(
-        "./generators/model_path/WDGraph_LSTM_42K_50_epochs.pth")
+        "./app/utils/generators/model_path/WDGraph_LSTM_42K_50_epochs.pth")
     candidates = generator.generate(number_of_seq=num_generations)
     return candidates
 
 
 master_tools = [get_smiles_details, get_protein_details,
-                get_polymer_details, get_similar_smiles, 
+                get_polymer_details, get_similar_smiles,
                 get_similar_psmiles, get_similar_proteins,
                 brics_generate_smiles, brics_generate_polymer,
                 lstm_generate_psmiles, lstm_generate_wdg]

@@ -8,6 +8,7 @@ import ChatParser from './components/Parsers/ChatParser';
 import ToolParser from './components/Parsers/ToolParser/ToolParser';
 import SpawnCards from './components/SpawnCards/SpawnCards';
 import { v4 as uuidv4 } from 'uuid';
+import ReactMarkdown from 'react-markdown';
 
 function App() {
   const [dots, setDots] = useState([]);
@@ -19,9 +20,31 @@ function App() {
   const [isSpawned, setIsSpawned] = useState(false);
   const [chatState, setChatState] = useState('default');
   const [currentActiveId, setCurrentActiveId] = useState(null);
+  const [documentContent, setDocumentContent] = useState(null);
+  const [initialContent, setInitialContent] = useState(null);
   const textareaRef = useRef(null);
   const eventSourceRef = useRef(null);
   const chatActionRef = useRef(null);
+
+  useEffect(() =>{
+    fetch("/Document.md")
+    .then((res) => res.text())
+    .then((text) => {
+        setDocumentContent(text);
+    })
+    .catch((err) => console.error("Error loading markdown:", err));
+
+    fetch("/Initial.md")
+    .then((res) => res.text())
+    .then((text) => {
+        setInitialContent(text);
+    })
+    .catch((err) => console.error("Error loading markdown:", err));
+  }, [])
+
+  useEffect(() => {
+    console.log("card contents >>", cardContents)
+  }, [cardContents])
 
   useEffect(() => {
     // Create a grid of dots
@@ -235,7 +258,8 @@ function App() {
         ref={chatActionRef}
       >
         {responses.length > 0 ? queryResponseSection : (
-          <p className="empty-message">No conversations yet...</p>
+          <ReactMarkdown>{initialContent}</ReactMarkdown>
+          // <p className="empty-message">No conversations yet...</p>
         )}
       </div>
 
@@ -262,7 +286,7 @@ function App() {
 
       <DraggableInfoButton
         Visible={<DragVisualizer style={{ top: "25px", right: "25px" }} />}
-        Content={<h1>Some Content</h1>}
+        Content={<ReactMarkdown>{documentContent}</ReactMarkdown>}
       />
       <SpawnCards existingElems={[chatActionRef, textareaRef]} cardContents={cardContents} cardType={cardType}
       currentActiveId={currentActiveId} />

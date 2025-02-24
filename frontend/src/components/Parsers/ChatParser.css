@@ -1,7 +1,12 @@
-.chat-parser-content h1{
+.chat-parser-content h1 {
     font-size: 1.4rem;
 }
 
-.chat-parser-content h2{
+.chat-parser-content h2 {
     font-size: 1.2rem;
+}
+
+.chat-parser-content pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }

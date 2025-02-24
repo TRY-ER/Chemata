@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { FaWrench } from 'react-icons/fa';
 import "./ToolParser.css";
+import { BsCardChecklist } from 'react-icons/bs';
 
 const ToolParser = ({ response,
   setCardContents,
@@ -36,6 +37,10 @@ const ToolParser = ({ response,
   const toggleCollapse = () => {
     setIsCollapsed(prev => !prev);
   };
+
+  useEffect(() => {
+    console.log("parsedData: ", parsedData);
+  }, [parsedData])
 
   useEffect(() => {
     if (spawned) {
