@@ -26,7 +26,7 @@ const ChatParser = ({ response, chatState }) => {
   }
 
   return (
-    <div className="chat-parser-content">
+    <div className={`chat-parser-content `}>
       <ReactMarkdown>{content}</ReactMarkdown>
     </div>
   );
